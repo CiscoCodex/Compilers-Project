@@ -1,0 +1,481 @@
+/**
+ * JJTree template file created by SF JavaCC plugin 1.5.28+ wizard for JavaCC 1.5.0+
+/***********************************************************************************
+* Collaborators: Prado, Arden & Francisco Rodriguez
+* Project: 2
+* Due: 12/03/2018
+* Course: cs-4110-01
+*
+* Instructions for Running:
+* The program can be compiled from command line or terminal using the command "javac *.java"
+* This will compile all java files in the source. This step can also be skipped if using the 
+* .class files provided. To run the program, type "java -cp [PATH] compilers_project_2.MyNewGrammar [FILENAME]"
+* Where [PATH] specifies the install path to the compilers_project_2 package, and [FILENAME] specifies the file to be parsed.
+* Included in the program are various test files located in folder /test 
+***********************************************************************************/options
+{
+  DEBUG_PARSER = false;
+  static = true;
+  NODE_CLASS = "ExtendedNode";
+}
+
+PARSER_BEGIN( MyNewGrammar )
+package compilers_project_2;
+
+import java.io.FileNotFoundException;
+import java.io.FileInputStream;
+
+public class MyNewGrammar
+{
+ 
+  // trie
+  public Trie trie;
+  
+  static String tokenName[] = new String[1000];
+  
+  public static void main( String args [] ) throws ParseException
+  {
+tokenName[0] = "EOF"; tokenName[4] = "EOL";
+	tokenName[5] = "_plus"; tokenName[6] = "_minus"; tokenName[7] = "_multiplication";
+	tokenName[8] = "_division"; tokenName[9] = "_mod"; tokenName[10] = "_assignop";
+	tokenName[11] = "_semicolon"; tokenName[12] = "_comma"; tokenName[13] = "_period";
+	tokenName[14] = "_leftparen"; tokenName[15] = "_rightparen"; tokenName[16] = "_leftbracket";
+	tokenName[17] = "_rightbracket"; tokenName[18] = "_leftbrace"; tokenName[19] = "_rightbrace";
+	tokenName[20] = "_less"; tokenName[21] = "_lessequal"; tokenName[22] = "_greater";
+	tokenName[23] = "_greaterequal"; tokenName[24] = "_equal"; tokenName[25] = "_notequal";
+	tokenName[26] = "_and"; tokenName[27] = "_or"; tokenName[28] = "_not";
+	tokenName[29] = "_boolean"; tokenName[30] = "_break"; tokenName[31] = "_class";
+	tokenName[32] = "_double"; tokenName[33] = "_else"; tokenName[34] = "_extends";
+	tokenName[35] = "_for"; tokenName[36] = "_if"; tokenName[37] = "_implements";
+	tokenName[38] = "_int"; tokenName[39] = "_interface"; tokenName[40] = "_new";
+	tokenName[41] = "_newarray"; tokenName[42] = "_null"; tokenName[43] = "_println";
+	tokenName[44] = "_readln"; tokenName[45] = "_return"; tokenName[46] = "_string";
+	tokenName[47] = "_void"; tokenName[48] = "_while"; tokenName[49] = "_booleanconstant";
+	tokenName[50] = "_id"; tokenName[51] = "_intconstant"; tokenName[52] = "_doubleconstant";
+	tokenName[53] = "_stringconstant"; tokenName[54] = "DIGIT"; tokenName[55] = "LETTER";
+	tokenName[56] = "ALPHABET";
+
+    MyNewGrammar parser = null;
+    ExtendedNode n;
+    
+    if ( args.length > 0 )
+    {
+  		try
+  		{ 
+      		// We have a file to parse
+      		System.out.println( "file specified! Reading from file...\n" );
+      		parser = new MyNewGrammar( new FileInputStream( args[0] ) );
+
+      		// Display tokens
+			while ( jj_ntk == -1 )
+		  	{
+		 		// Get the next token
+		 		Token token = getNextToken();
+		 		//System.out.print( token.toString() + " " );
+		
+			 	if ( tokenName[token.kind].equals( "EOF" ) )
+			 	{
+				   	// End of File. Terminate
+				   	break;
+			 	}	
+			 	else if ( tokenName[token.kind].equals( "EOL" ) )
+			 	{
+				   	// New line 
+				   	System.out.print( "\n" );
+			 	}
+			 	else
+			 	{
+			 	  	// Print the type of token we're parsing
+				 	System.out.println( tokenName[token.kind] + " " );
+		
+			 	}
+				 
+			}
+			System.out.println();
+			System.out.println();
+			
+			// Reinitialize parser
+			ReInit(new FileInputStream( args[0]));
+  		}
+  		catch ( FileNotFoundException e )
+  		{
+		    // Specified file doesn't exist so don't go any further
+		    System.out.println( "file not found! Terminating..." );
+		    return;
+  		}
+	}
+	else
+	{
+  		// Default to console input
+	  	System.out.println( "No file specified! Reading from standard input...\n" );
+	  	parser = new MyNewGrammar( System.in );
+	}
+    
+	try
+	{
+	  	n = MyNewGrammar.Start();
+	  	System.out.println("Printing parse tree...");
+      	n.dump("");
+	    parser.trie = new Trie();
+	    
+  	}
+	catch ( Exception e )
+  	{
+	    System.out.println( "NOK." );
+	    System.out.println( e.getMessage() );
+	    parser.ReInit( System.in );
+ 	}
+  	catch ( Error e )
+  	{
+   		System.out.println( "Oops." );
+    	System.out.println( e.getMessage() );
+  	}
+  }
+}PARSER_END(MyNewGrammar)SKIP :
+{
+  " "
+| "\t"
+| "\r"
+| "\n"
+}
+
+TOKEN : /* OPERATORS */
+{
+  < _plus : "+" >
+| < _minus : "-" >
+| < _multiplication : "*" >
+| < _division : "/" >
+| < _mod : "%" >
+| < _assignop : "=" >
+| < _semicolon : ";" >
+| < _comma : "," >
+| < _period : "." >
+| < _leftparen : "(" >
+| < _rightparen : ")" >
+| < _leftbracket : "[" >
+| < _rightbracket : "]" >
+| < _leftbrace : "{" >
+| < _rightbrace : "}" >
+}
+
+TOKEN : /* LOGICAL */
+{
+  < _less : "<" >
+| < _lessequal : "<=" >
+| < _greater : ">" >
+| < _greaterequal : ">=" >
+| < _equal : "==" >
+| < _notequal : "!=" >
+| < _and : "&&" >
+| < _or : "||" >
+| < _not : "!" >
+}
+
+TOKEN : /* RESERVED */
+{
+  < _boolean : "boolean" >
+| < _break : "break" >
+| < _class : "class" >
+| < _double : "double" >
+| < _else : "else" >
+| < _extends : "extends" >
+| < _for : "for" >
+| < _if : "if" >
+| < _implements : "implements" >
+| < _int : "int" >
+| < _interface : "interface" >
+| < _new : "new" >
+| < _newarray : "newarray" >
+| < _null : "null" >
+| < _println : "println" >
+| < _readln : "readln" >
+| < _return : "return" >
+| < _string : "string" >
+| < _void : "void" >
+| < _while : "while" >
+}
+
+TOKEN : /* BOOLEAN CONSTANT */
+{
+  < _booleanconstant : "true" | "false" >
+}
+
+TOKEN : /* IDENTIFIER */
+{
+  < _id : < LETTER >(< LETTER >|< DIGIT >|"_")* >
+}
+
+TOKEN : /* STATIC TOKENS */
+{
+  < _intconstant : (< DIGIT >)+ | ("0x" | "0X") (< DIGIT > |
+  	"a" | "A" | "b" | "B" | "c" | "C" | "d" | "D" |
+  	"e" | "E" | "f" | "F" )+ | (< DIGIT >)+ ( "E" | "e" ) "+" (< DIGIT >)+>
+|   < _doubleconstant : (< DIGIT >)+ "." (< DIGIT >)* |
+  	(< DIGIT >)+ "." (< DIGIT >)* ("E" | "e") ("+" | "-")? (< DIGIT >)+>
+| < _stringconstant : "\"" ( ~["\r", "\n", "\""] )* "\"" >
+| < #DIGIT : ["0"-"9"] >
+| < #LETTER : ["a"-"z", "A"-"Z"] >
+| < #ALPHABET : [" " - "~"] >
+}
+
+SKIP : /* COMMENTS */
+{
+  < LINECOMMENT : "//" ( ~["\r", "\n"] )* > // Line comments should skip the entire line
+| < ML_COMMENT_START : "/*" > : IN_ML_COMMENT
+}
+
+< IN_ML_COMMENT > SKIP :
+{
+  < ML_COMMENT_END : "*/" > : DEFAULT
+| < ~[] >
+}ExtendedNode Start() :{}{  Program()  {    return jjtThis;  }}void Program() :{}{
+  Decl() [ Program() ]}void Decl() :{}{
+  LOOKAHEAD(3) VariableDecl()
+  | FunctionDecl()
+  | ClassDecl()
+  | InterfaceDecl()}void VariableDecl() :{}{  Variable() < _semicolon >}void Variable() :{}{  Type() < _id >}void Type() :{}{  < _int > (< _leftbracket > < _rightbracket >)* 
+| < _double > (< _leftbracket > < _rightbracket >)* 
+| < _boolean > (< _leftbracket > < _rightbracket >)* 
+| < _string > (< _leftbracket > < _rightbracket >)* 
+| < _id > (< _leftbracket > < _rightbracket >)* 
+}
+void FunctionDecl() :{}{  Type() < _id > <_leftparen > Formals() <_rightparen > StmtBlock()
+| < _void > < _id > < _leftparen > Formals() < _rightparen > StmtBlock()}
+
+void Formals() :
+{}
+{
+  [ VariableList() ]
+}
+
+void VariableList() :
+{}
+{
+  Variable() [ < _comma > VariableList() ]
+}
+
+void ClassDecl() :
+{}
+{
+  < _class > < _id > [ < _extends > < _id > ] [ ImplementsList() ] < _leftbrace > [ FieldList() ] < _rightbrace >
+}
+
+void ImplementsList() :
+{}
+{
+  < _implements > < _id > ( < _comma > < _implements > < _id > )* 
+}
+
+void FieldList() :
+{}
+{
+  Field() [ FieldList() ]
+}
+
+void Field() :
+{}
+{
+  LOOKAHEAD(3) VariableDecl()
+| FunctionDecl()
+}
+
+void InterfaceDecl() :
+{}
+{
+  < _interface > < _id > < _leftbrace > [ PrototypeList() ] < _rightbrace >
+}
+
+void PrototypeList() :
+{}
+{
+  Prototype() [ PrototypeList() ]
+}
+
+void Prototype() :
+{}
+{
+  Type() < _id > < _leftparen > Formals() < _rightparen > < _semicolon >
+| < _void > < _id > < _leftparen > Formals() < _rightparen > < _semicolon >
+}
+
+void StmtBlock() :
+{}
+{
+  < _leftbrace > StmtBlockPrime()
+}
+
+void StmtBlockPrime() :
+{}
+{
+  LOOKAHEAD( 3 )
+  [ StmtList() ] < _rightbrace >
+|
+  VariableDeclList() [ StmtList() ] < _rightbrace >
+}
+
+void VariableDeclList() :
+{}
+{
+  VariableDecl() VariableDeclListPrime()
+}
+
+void VariableDeclListPrime() :
+{}
+{
+  LOOKAHEAD( 2 )
+  VariableDeclList()
+|
+  {}
+}
+
+void StmtList() :
+{}
+{
+  Stmt() [ StmtList() ]
+}
+
+void Stmt() :
+{}
+{
+  [ Expr() ] < _semicolon >
+| IfStmt()
+| WhileStmt()
+| ForStmt()
+| BreakStmt()
+| ReturnStmt()
+| PrintStmt()
+| StmtBlock()
+}
+
+void IfStmt() :
+{}
+{
+  < _if > < _leftparen > Expr() < _rightparen > Stmt() [ < _else > Stmt() ]
+}
+
+void WhileStmt() :
+{}
+{
+  < _while > < _leftparen > Expr() < _rightparen > Stmt()
+}
+
+void ForStmt() :
+{}
+{
+  < _for > < _leftparen > [ Expr() ] < _semicolon > Expr() < _semicolon > [ Expr() ] < _rightparen > Stmt()
+}
+
+void BreakStmt() :
+{}
+{
+  < _break > < _semicolon >
+}
+
+void ReturnStmt() :
+{}
+{
+  < _return > [ Expr() ] < _semicolon >
+}
+
+void PrintStmt() :
+{}
+{
+  < _println > < _leftparen > ExprList() < _rightparen > < _semicolon >
+}
+
+void ExprList() :
+{}
+{
+  Expr() [ < _comma > ExprList() ]
+}
+
+void Expr() :
+{}
+{
+  OpPrecedence1()
+}
+
+void OpPrecedence1() :
+{}
+{
+  OpPrecedence2() ( < _or > OpPrecedence2() )*
+}
+
+void OpPrecedence2() :
+{}
+{
+  OpPrecedence3() ( < _and > OpPrecedence3() )*
+}
+
+void OpPrecedence3() :
+{}
+{
+  OpPrecedence4() ( ( < _equal > | < _notequal > ) OpPrecedence4() )*
+}
+
+void OpPrecedence4() :
+{}
+{
+  OpPrecedence5() [ ( < _less > | < _lessequal > | < _greater > | < _greaterequal > ) OpPrecedence5() ]
+}
+
+void OpPrecedence5() :
+{}
+{
+  OpPrecedence6() ( ( < _plus > | < _minus > | < _mod > ) OpPrecedence6() )*
+}
+
+void OpPrecedence6() :
+{}
+{
+  OpPrecedence7() ( ( < _multiplication > | < _division > ) OpPrecedence7() )*
+}
+
+void OpPrecedence7() :
+{}
+{
+  OpPrecedence8() [ ( < _minus > | < _not > ) OpPrecedence8() ]
+}
+
+void OpPrecedence8() :
+{}
+{
+  LOOKAHEAD( < _id > ( ( < _leftparen > ) | ( < _period > < _id > < _leftparen > ) ) )
+  Call()
+| LValue() [ < _assignop > Expr() ]
+| Constant()
+| < _leftparen > Expr() < _rightparen >
+| < _minus > Expr()
+| < _not > Expr()
+| < _readln > < _leftparen > < _rightparen >
+| < _new > < _leftparen > < _id > < _rightparen >
+| < _newarray > < _leftparen > < _intconstant > < _comma > Type() < _rightparen >
+}
+
+void LValue() :
+{}
+{
+  < _id > ( ( < _leftbracket > Expr() < _rightbracket > ) | ( < _period > < _id > ) )*
+}
+
+void Call() :
+{}
+{
+  < _id > [ < _period > < _id > ] < _leftparen > Actuals() < _rightparen >
+}
+
+void Actuals() :
+{}
+{
+  [ ExprList() ]
+}
+
+void Constant() :
+{}
+{
+  < _intconstant >
+| < _doubleconstant >
+| < _stringconstant >
+| < _booleanconstant >
+| < _null >
+}
